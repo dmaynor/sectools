@@ -20,4 +20,8 @@ options:
   --separate            Save each trace to a separate file
   --pattern PATTERN     Pattern for naming separate files (default: trace)
 
+mattermost_automated_deploy.py
+------------------------------
+sets up a docker pull of a given mattermost server version.
 
+usage: ./mattermost_automated_deploy.py 
