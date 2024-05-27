@@ -25,3 +25,22 @@ mattermost_automated_deploy.py
 sets up a docker pull of a given mattermost server version.
 
 usage: ./mattermost_automated_deploy.py 
+
+crash_hex_to_asm.py
+-------------------
+takes a space seprated string of hex from a crash dump and attemtps to decode what the the instructions were.
+if a significant point is marked in the string with < and > enclosing an instruction it will point out
+where that opcode is in the instructions. 
+
+Please provide a file or use the -i flag for interactive mode.
+usage: crash_hex_to_asm.py [-h] [-i] [file]
+
+Disassemble hex code to assembly instructions.
+
+positional arguments:
+  file               File containing hex code to disassemble
+
+options:
+  -h, --help         show this help message and exit
+  -i, --interactive  Interactive mode
+
