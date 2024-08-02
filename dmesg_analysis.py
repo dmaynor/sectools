@@ -5,18 +5,28 @@ E: dmaynor@protonmail.com
 X: @dave_maynor
 
 Goal:
-This tool is designed to enhance the output of the `dmesg` command by adding real-time timestamps to the kernel messages, highlighting kernel panics, and optionally filtering to show only errors, kernel panics, or lines matching a user-provided string. The tool aims to assist system administrators and developers in analyzing kernel messages more effectively by providing more context and better readability.
+This tool is designed to enhance the output of the `dmesg` command by adding 
+real-time timestamps to the kernel messages, highlighting kernel panics, 
+and optionally filtering to show only errors, kernel panics, or lines 
+matching a user-provided string. The tool aims to assist system 
+administrators and developers in analyzing kernel messages more effectively 
+by providing more context and better readability.
 
 Design:
 1. Permissions Check: Ensure the script is run as root.
 2. Get Boot Time: Retrieve the system boot time from `/proc/stat`.
 3. Run dmesg: Execute the `dmesg` command and capture its output.
-4. Convert Time: Convert relative timestamps in `dmesg` output to real-time timestamps.
-5. Replace Times: Replace relative timestamps with real-time timestamps in the `dmesg` output.
+4. Convert Time: Convert relative timestamps in `dmesg` output to real-time 
+timestamps.
+5. Replace Times: Replace relative timestamps with real-time timestamps in 
+the `dmesg` output.
 6. Highlight Kernel Panics: Highlight kernel panic messages in yellow.
-7. Filter Errors: Optionally filter the output to show only errors and kernel panics.
-8. Search String: Optionally filter the output to show only lines containing a user-provided string.
-9. Count Errors and Panics: Count the number of errors and kernel panics, and display the counts at the end.
+7. Filter Errors: Optionally filter the output to show only errors and 
+kernel panics.
+8. Search String: Optionally filter the output to show only lines containing 
+a user-provided string.
+9. Count Errors and Panics: Count the number of errors and kernel panics, 
+and display the counts at the end.
 10. Logging: Provide logging for important events and errors.
 11. Configuration: Use command-line arguments for configuration.
 """
@@ -109,7 +119,8 @@ def replace_times(dmesg_output, boot_time, show_both_times):
     Args:
         dmesg_output (str): The output of the dmesg command.
         boot_time (int): The boot time as a Unix timestamp.
-        show_both_times (bool): Flag to indicate if both relative and real-time timestamps should be shown.
+        show_both_times (bool): Flag to indicate if both relative and 
+        real-time timestamps should be shown.
         
     Returns:
         str: The dmesg output with real-time timestamps.
