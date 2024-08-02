@@ -5,28 +5,18 @@ E: dmaynor@protonmail.com
 X: @dave_maynor
 
 Goal:
-This tool is designed to enhance the output of the `dmesg` command by adding 
-real-time timestamps to the kernel messages, highlighting kernel panics, 
-and optionally filtering to show only errors, kernel panics, or lines 
-matching a user-provided string. The tool aims to assist system 
-administrators and developers in analyzing kernel messages more effectively 
-by providing more context and better readability.
+This tool is designed to enhance the output of the `dmesg` command by adding real-time timestamps to the kernel messages, highlighting kernel panics, and optionally filtering to show only errors, kernel panics, or lines matching a user-provided string. The tool aims to assist system administrators and developers in analyzing kernel messages more effectively by providing more context and better readability.
 
 Design:
 1. Permissions Check: Ensure the script is run as root.
 2. Get Boot Time: Retrieve the system boot time from `/proc/stat`.
 3. Run dmesg: Execute the `dmesg` command and capture its output.
-4. Convert Time: Convert relative timestamps in `dmesg` output to real-time 
-timestamps.
-5. Replace Times: Replace relative timestamps with real-time timestamps in 
-the `dmesg` output.
+4. Convert Time: Convert relative timestamps in `dmesg` output to real-time timestamps.
+5. Replace Times: Replace relative timestamps with real-time timestamps in the `dmesg` output.
 6. Highlight Kernel Panics: Highlight kernel panic messages in yellow.
-7. Filter Errors: Optionally filter the output to show only errors and 
-kernel panics.
-8. Search String: Optionally filter the output to show only lines containing 
-a user-provided string.
-9. Count Errors and Panics: Count the number of errors and kernel panics, 
-and display the counts at the end.
+7. Filter Errors: Optionally filter the output to show only errors and kernel panics.
+8. Search String: Optionally filter the output to show only lines containing a user-provided string.
+9. Count Errors and Panics: Count the number of errors and kernel panics, and display the counts at the end.
 10. Logging: Provide logging for important events and errors.
 11. Configuration: Use command-line arguments for configuration.
 """
@@ -119,8 +109,7 @@ def replace_times(dmesg_output, boot_time, show_both_times):
     Args:
         dmesg_output (str): The output of the dmesg command.
         boot_time (int): The boot time as a Unix timestamp.
-        show_both_times (bool): Flag to indicate if both relative and 
-        real-time timestamps should be shown.
+        show_both_times (bool): Flag to indicate if both relative and real-time timestamps should be shown.
         
     Returns:
         str: The dmesg output with real-time timestamps.
@@ -145,7 +134,7 @@ def highlight_kernel_panic(line):
     Returns:
         str: The line with kernel panic messages highlighted.
     """
-    if "Kernel panic" in line or "Oops" in line:
+    if "Kernel panic" in line or "Oops" in line or "UBSAN" in line or "---[ end trace" in line:
         return f"\033[33m{line}\033[0m"  # Yellow color for kernel panic
     return line
 
@@ -159,7 +148,7 @@ def filter_errors(lines):
     Returns:
         list: A list of filtered lines containing errors or kernel panics.
     """
-    error_keywords = ["error", "fail", "fatal", "panic", "oops"]
+    error_keywords = ["error", "fail", "fatal", "panic", "oops", "UBSAN", "end trace"]
     filtered_lines = []
     for line in lines:
         if any(keyword in line.lower() for keyword in error_keywords):
@@ -176,13 +165,14 @@ def count_errors_and_panics(lines):
     Returns:
         tuple: A tuple containing the count of errors and kernel panics.
     """
-    error_keywords = ["error", "fail", "fatal", "panic", "oops"]
+    error_keywords = ["error", "fail", "fatal", "UBSAN"]
+    panic_keywords = ["Kernel panic", "Oops", "---[ end trace"]
     error_count = 0
     kernel_panic_count = 0
     in_kernel_panic = False
 
     for line in lines:
-        if "Kernel panic" in line or "Oops" in line:
+        if any(keyword in line for keyword in panic_keywords):
             kernel_panic_count += 1
             in_kernel_panic = True
         elif "---[ end trace" in line:
@@ -232,6 +222,9 @@ def main(show_both_times, show_kernel_errors, search_string, log_level):
     if search_string:
         lines = filter_by_string(lines, search_string)
     
+    error_count = 0
+    kernel_panic_count = 0
+    
     if show_kernel_errors or search_string:
         error_count, kernel_panic_count = count_errors_and_panics(lines)
     
@@ -239,7 +232,7 @@ def main(show_both_times, show_kernel_errors, search_string, log_level):
         if line.strip():
             print(highlight_kernel_panic(line))
     
-    if show_kernel_errors:
+    if show_kernel_errors or search_string:
         logging.info(f"Error count: {error_count} errors, {kernel_panic_count} kernel panics")
 
 if __name__ == "__main__":
@@ -253,4 +246,3 @@ if __name__ == "__main__":
     log_level = getattr(logging, args.log_level.upper(), logging.INFO)
     
     main(args.show_both_times, args.show_kernel_errors, args.check_string, log_level)
-
