@@ -80,11 +80,12 @@ python3 validate_ssn.py -s 123-45-6789
 ```
 This command will validate the SSN 123-45-6789 and return whether it is valid or not, along with a reason if it is invalid.
 File-Based Validation:
-
-
+```
 python3 validate_ssn.py -f ssn_list.txt
+```
 This command will validate each SSN in the file ssn_list.txt, printing the results for each one.
-Help Option:
+
+#### Help Option:
 
 ```
 python3 validate_ssn.py -h
