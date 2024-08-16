@@ -1,10 +1,11 @@
+
 # sectools
-repo for random tools
+Repo for random tools
 
 ## crash_grab.py
 
 Used for copying the crash logs out of a file. These are the contents between 
-------------[ cut here ]------------ and ---[ end trace 0000000000000000 ]---
+`------------[ cut here ]------------` and `---[ end trace 0000000000000000 ]---`.
 
 ```
 usage: crash_grab.py [-h] [-o OUTPUT] [--separate] [--pattern PATTERN] input
@@ -24,15 +25,15 @@ options:
 
 ## mattermost_automated_deploy.py
 
-sets up a docker pull of a given mattermost server version.
+Sets up a docker pull of a given Mattermost server version.
 ```
 usage: ./mattermost_automated_deploy.py
 ```
 
 ## crash_hex_to_asm.py
 
-takes a space seprated string of hex from a crash dump and attemtps to decode what the the instructions were.
-if a significant point is marked in the string with < and > enclosing an instruction it will point out
+Takes a space-separated string of hex from a crash dump and attempts to decode what the instructions were.
+If a significant point is marked in the string with < and > enclosing an instruction, it will point out
 where that opcode is in the instructions. 
 
 Please provide a file or use the -i flag for interactive mode.
@@ -45,7 +46,28 @@ positional arguments:
   file               File containing hex code to disassemble
 ```
 
+## dmesg_analysis.py
+
+Enhances the output of the `dmesg` command by adding real-time timestamps, highlighting critical messages like kernel panics, and offering filtering options for improved readability and analysis.
+
+```
+usage: dmesg_analysis.py [-h] [-b] [-e] [-s STRING] [-l LOG_LEVEL]
+
+Enhanced dmesg output with real-time timestamps and filtering.
+
+options:
+  -h, --help            show this help message and exit
+  -b, --show-both-times Show both relative and real-time timestamps.
+  -e, --show-kernel-errors
+                        Show only kernel errors or panics.
+  -s STRING, --check-string STRING
+                        Show only lines containing the specified string.
+  -l LOG_LEVEL, --log-level LOG_LEVEL
+                        Set the logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+```
+
 ## validate_ssn.py
+
 This Python script is designed to validate Social Security Numbers (SSNs) using a series of checks based on common security patterns and standards. It can process either a single SSN or a list of SSNs from a file, providing detailed feedback on whether each SSN is valid or not.
 
 ### Key Features:
@@ -66,36 +88,23 @@ It includes a list of SSNs that are known to be fake or commonly used in media (
 ### Command-Line Interface (CLI):
 
 The script can be run from the command line with options to validate either a single SSN (-s) or a file containing multiple SSNs (-f). It provides clear feedback on the validity of each SSN and explains why an SSN is invalid if it fails the checks.
-The CLI includes a help option (-h or --help) that displays usage instructions, including author contact information.
-MIT License:
 
-The script is licensed under the MIT License, allowing for broad usage and modification, with attribution to the author, David Maynor.
-References:
-
-The script contains a reference section that credits the sources of the patterns used, including OWASP CRS, OpenDLP, and other security resources.
-Example Usage:
-Single SSN Validation:
 ```
 python3 validate_ssn.py -s 123-45-6789
 ```
+
 This command will validate the SSN 123-45-6789 and return whether it is valid or not, along with a reason if it is invalid.
-File-Based Validation:
+
 ```
 python3 validate_ssn.py -f ssn_list.txt
 ```
+
 This command will validate each SSN in the file ssn_list.txt, printing the results for each one.
 
-#### Help Option:
+### Help Option:
 
 ```
 python3 validate_ssn.py -h
 ```
-This command displays help information, including how to use the script and author contact details.
-Intended Use:
-This script is useful for anyone who needs to validate SSNs, whether for security, data processing, or compliance purposes. It leverages open-source methodologies and patterns, making it a reliable and transparent tool for SSN validation.
 
-```
-options:
-  -h, --help         show this help message and exit
-  -i, --interactive  Interactive mode
-```
+This command displays help information, including how to use the script and author contact details.
