@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 MIT License
 
@@ -105,7 +107,10 @@ def process_file(file_path):
         print(f"File {file_path} not found.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate Social Security Numbers (SSNs).")
+    parser = argparse.ArgumentParser(
+        description="Validate Social Security Numbers (SSNs).",
+        epilog="Author: David Maynor (dmaynor@gmail.com) Twitter/X: @dave_maynor"
+    )
     parser.add_argument("-s", "--ssn", type=str, help="A single SSN to validate.")
     parser.add_argument("-f", "--file", type=str, help="A file containing SSNs to validate, one per line.")
 
