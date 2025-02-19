@@ -6,15 +6,19 @@ SOURCE_FILE=""
 SHOW_ADDED=false
 SHOW_REMOVED=false
 SHOW_PERSISTED=false
+LOGGING_ENABLED=false
+LOG_DIR="$HOME/.env_compare"
+DB_FILE="$LOG_DIR/env_history.db"
 
 # Usage help
 usage() {
-    echo "Usage: $0 [-s shell] [-f file] [--added] [--removed] [--persisted]"
+    echo "Usage: $0 [-s shell] [-f file] [--added] [--removed] [--persisted] [--enable-logging]"
     echo "  -s shell    : Specify shell type (zsh, bash, fish)"
     echo "  -f file     : File to source and compare effects"
     echo "  --added     : Show newly added environment variables/functions/hooks"
     echo "  --removed   : Show removed environment variables/functions/hooks"
     echo "  --persisted : Show unchanged environment variables/functions/hooks"
+    echo "  --enable-logging : Create env history DB and log results"
     exit 1
 }
 
@@ -26,6 +30,7 @@ while [[ "$#" -gt 0 ]]; do
         --added) SHOW_ADDED=true ;;
         --removed) SHOW_REMOVED=true ;;
         --persisted) SHOW_PERSISTED=true ;;
+        --enable-logging) LOGGING_ENABLED=true ;;
         *) usage ;;
     esac
     shift
@@ -41,6 +46,21 @@ fi
 if ! command -v "$SHELL_TYPE" &>/dev/null; then
     echo "❌ Error: Shell '$SHELL_TYPE' not found."
     exit 1
+fi
+
+# Enable logging: Create directory & database if missing
+if [[ "$LOGGING_ENABLED" == true ]]; then
+    mkdir -p "$LOG_DIR"
+    if [[ ! -f "$DB_FILE" ]]; then
+        echo "📌 Creating environment history database at $DB_FILE..."
+        sqlite3 "$DB_FILE" "CREATE TABLE env_history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT,
+            type TEXT,
+            name TEXT,
+            value TEXT
+        );"
+    fi
 fi
 
 echo "🔹 Running in: $SHELL_TYPE"
@@ -81,6 +101,25 @@ removed_funcs=$(diff --new-line-format="" --old-line-format="- %L" --unchanged-l
 # Find added and removed hooks
 added_hooks=$(diff --new-line-format="+ %L" --old-line-format="" --unchanged-line-format="" /tmp/hooks_before.txt /tmp/hooks_after.txt)
 removed_hooks=$(diff --new-line-format="" --old-line-format="- %L" --unchanged-line-format="" /tmp/hooks_before.txt /tmp/hooks_after.txt)
+
+# Log changes to SQLite if logging is enabled
+if [[ "$LOGGING_ENABLED" == true ]]; then
+    TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+    log_to_db() {
+        sqlite3 "$DB_FILE" "INSERT INTO env_history (timestamp, type, name, value) VALUES ('$TIMESTAMP', '$1', '$2', '$3');"
+    }
+
+    echo "📌 Logging changes to database..."
+    while read -r line; do log_to_db "added_var" "${line%%=*}" "${line#*=}"; done <<< "$added_vars"
+    while read -r line; do log_to_db "removed_var" "${line%%=*}" "${line#*=}"; done <<< "$removed_vars"
+    while read -r line; do log_to_db "added_func" "$line" ""; done <<< "$added_funcs"
+    while read -r line; do log_to_db "removed_func" "$line" ""; done <<< "$removed_funcs"
+    while read -r line; do log_to_db "added_hook" "$line" ""; done <<< "$added_hooks"
+    while read -r line; do log_to_db "removed_hook" "$line" ""; done <<< "$removed_hooks"
+
+    echo "✅ Changes logged to $DB_FILE"
+fi
 
 # Display results based on flags
 echo "📌 Environment Variable Changes:"
